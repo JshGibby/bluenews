@@ -6,70 +6,13 @@ ws.onopen = () => {
 };
 
 // Create container for messages
-const container = document.createElement('div');
-container.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    color: #fff;
-    overflow: hidden;
-    font-family: monospace;
-    display: flex;
-    gap: 10px;
-    padding: clamp(10px, 2vw, 20px);
-    padding-top: 20px;
-    box-sizing: border-box;
-`;
+const container = document.getElementById('container');
 
 // After creating the container, add these new elements
-const controlsContainer = document.createElement('div');
-controlsContainer.style.cssText = `
-    position: fixed;
-    top: clamp(10px, 2vw, 20px);
-    left: clamp(10px, 2vw, 20px);
-    display: flex;
-    gap: 10px;
-    z-index: 1000;
-`;
+const controlsContainer = document.getElementById('controlsContainer');
+const followBox = document.getElementById('followBox');
+const pauseButton = document.getElementById('pauseButton');
 
-const followBox = document.createElement('a');
-followBox.href = 'https://bsky.app/profile/lantto.bsky.social';
-followBox.target = '_blank';
-followBox.style.cssText = `
-    background: #2a2a2a;
-    padding: 10px 15px;
-    border-radius: 8px;
-    color: #fff;
-    text-decoration: none;
-    font-family: monospace;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-`;
-followBox.textContent = 'Follow me @ Bsky';
-followBox.addEventListener('mouseenter', () => {
-    followBox.style.background = '#363636';
-});
-followBox.addEventListener('mouseleave', () => {
-    followBox.style.background = '#2a2a2a';
-});
-
-const pauseButton = document.createElement('button');
-pauseButton.style.cssText = `
-    background: #2a2a2a;
-    padding: 10px 15px;
-    border-radius: 8px;
-    color: #fff;
-    border: none;
-    font-family: monospace;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-`;
-pauseButton.textContent = 'Pause';
 let isPaused = false;
 pauseButton.addEventListener('click', () => {
     isPaused = !isPaused;
@@ -77,16 +20,13 @@ pauseButton.addEventListener('click', () => {
     pauseButton.style.background = isPaused ? '#4ECDC4' : '#2a2a2a';
     columnPaused.fill(isPaused);
 });
+
 pauseButton.addEventListener('mouseenter', () => {
     pauseButton.style.background = isPaused ? '#5ddad1' : '#363636';
 });
 pauseButton.addEventListener('mouseleave', () => {
     pauseButton.style.background = isPaused ? '#4ECDC4' : '#2a2a2a';
 });
-
-controlsContainer.appendChild(followBox);
-controlsContainer.appendChild(pauseButton);
-document.body.appendChild(controlsContainer);
 
 // Replace the fixed COLUMN_COUNT with a function
 function getColumnCount() {
@@ -229,69 +169,48 @@ ws.onmessage = async (event) => {
             json.commit.collection !== 'app.bsky.feed.post' ||
             !json.commit.record ||
             json.commit.operation !== 'create') {
-            return;
-        }
+            return[_{{{CITATION{{{_1{](https://github.com/watchping/vue-course/tree/6a60dc019287a13859793f1ec7fef84dc41aa2b9/temp.md)
 
-        // Find next available unpause column
-        let attempts = 0;
-        while (columnPaused[currentColumn] && attempts < COLUMN_COUNT) {
-            currentColumn = (currentColumn + 1) % COLUMN_COUNT;
-            attempts++;
-        }
-        
-        // If all columns are paused, skip this message
-        if (attempts === COLUMN_COUNT) return;
-
-        // Fetch embed code
-        const embedUrl = `https://cors-anywhere.herokuapp.com/https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
-        const response = await fetch(embedUrl);
-        const embedCode = await response.text();
-
-        // Create new message as a div
-        const message = document.createElement('div');
-        message.style.cssText = `
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 4px solid ${getRandomColor()};
-            border-radius: 8px;
-            opacity: 0;
-            transform: translateY(-20px);
-            animation: fadeIn 0.3s ease forwards;
-            font-size: 14px;
-            word-break: break-word;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
-            text-decoration: none;
-            color: inherit;
-            cursor: pointer;
-            display: block;
-        `;
-        
-        message.innerHTML = embedCode;
-        
-        // Move the message insertion and hover effects here
-        columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
-        currentColumn = (currentColumn + 1) % COLUMN_COUNT;
-        
-        // Only remove old messages if column isn't paused
-        if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
-            const oldMessages = Array.from(columns[currentColumn].children).slice(15);
-            oldMessages.forEach(msg => {
-                msg.style.animation = 'fadeOut 0.3s ease forwards';
-                setTimeout(() => msg.remove(), 300);
-            });
-        }
-
-        // Add hover effect to messages
-        message.addEventListener('mouseenter', () => {
-            message.style.transform = 'scale(1.02)';
-            message.style.background = 'rgba(255, 255, 255, 0.08)';
+                                               border-left: 4px solid ${getRandomColor()};
+        border-radius: 8px;
+        opacity: 0;
+        transform: translateY(-20px);
+        animation: fadeIn 0.3s ease forwards;
+        font-size: 14px;
+        word-break: break-word;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+        display: block;
+    `;
+    
+    message.innerHTML = embedCode;
+    
+    // Move the message insertion and hover effects here
+    columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
+    currentColumn = (currentColumn + 1) % COLUMN_COUNT;
+    
+    // Only remove old messages if column isn't paused
+    if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
+        const oldMessages = Array.from(columns[currentColumn].children).slice(15);
+        oldMessages.forEach(msg => {
+            msg.style.animation = 'fadeOut 0.3s ease forwards';
+            setTimeout(() => msg.remove(), 300);
         });
+    }
 
-        message.addEventListener('mouseleave', () => {
-            message.style.transform = 'scale(1)';
-            message.style.background = 'rgba(255, 255, 255, 0.05)';
-        });
+    // Add hover effect to messages
+    message.addEventListener('mouseenter', () => {
+        message.style.transform = 'scale(1.02)';
+        message.style.background = 'rgba(255, 255, 255, 0.08)';
+    });
+
+    message.addEventListener('mouseleave', () => {
+        message.style.transform = 'scale(1)';
+        message.style.background = 'rgba(255, 255, 255, 0.05)';
+    });
     } catch (error) {
         console.error("Error handling WebSocket message:", error);
     }
