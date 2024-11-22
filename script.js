@@ -202,6 +202,23 @@ async function displayMosaicFeed(profileUrls) {
             const embedCode = await fetchEmbedCode(postLink);
             if (embedCode) {
                 const embedContainer = document.createElement('div');
+                embedContainer.style.cssText = `
+                    padding: 15px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-left: 4px solid ${getRandomColor()};
+                    border-radius: 8px;
+                    opacity: 0;
+                    transform: translateY(-20px);
+                    animation: fadeIn 0.3s ease forwards;
+                    font-size: 14px;
+                    word-break: break-word;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                    transition: all 0.2s ease;
+                    text-decoration: none;
+                    color: inherit;
+                    cursor: pointer;
+                    display: block;
+                `;
                 embedContainer.innerHTML = `
                     <blockquote class="bluesky-embed" data-bluesky-uri="${postLink}" data-bluesky-cid="data-cid"></blockquote>
                     <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
@@ -247,49 +264,51 @@ ws.onmessage = async (event) => {
 
     // Create new message as a div
     const message = document.createElement('div');
-    message.style.cssText
+    message.style.cssText = `
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 4px solid ${getRandomColor()};
+        border-radius: 8px;
+        opacity: 0;
+        transform: translateY(-20px);
+        animation: fadeIn 0.3s ease forwards;
+        font-size: 14px;
+        word-break: break-word;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+        display: block;
+    `;
+    message.innerHTML = `
+        <blockquote class="bluesky-embed" data-bluesky-uri="${embedUrl}" data-bluesky-cid="data-cid"></blockquote>
+        <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+    `;
 
-    opacity: 0;
-    transform: translateY(-20px);
-    animation: fadeIn 0.3s ease forwards;
-    font-size: 14px;
-    word-break: break-word;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: all 0.2s ease;
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
-    display: block;
-`;
+    // Move the message insertion and hover effects here
+    columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
+    currentColumn = (currentColumn + 1) % COLUMN_COUNT;
 
-message.innerHTML = `
-    <blockquote class="bluesky-embed" data-bluesky-uri="${embedUrl}" data-bluesky-cid="data-cid"></blockquote>
-    <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
-`;
+    // Only remove old messages if column isn't paused
+    if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
+        const oldMessages = Array.from(columns[currentColumn].children).slice(15);
+        oldMessages.forEach(msg => {
+            msg.style.animation = 'fadeOut 0.3s ease forwards';
+            setTimeout(() => msg.remove(), 300);
+        });
+    }
 
-// Move the message insertion and hover effects here
-columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
-currentColumn = (currentColumn + 1) % COLUMN_COUNT;
-
-// Only remove old messages if column isn't paused
-if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
-    const oldMessages = Array.from(columns[currentColumn].children).slice(15);
-    oldMessages.forEach(msg => {
-        msg.style.animation = 'fadeOut 0.3s ease forwards';
-        setTimeout(() => msg.remove(), 300);
+    // Add hover effect to messages
+    message.addEventListener('mouseenter', () => {
+        message.style.transform = 'scale(1.02)';
+        message.style.background = 'rgba(255, 255, 255, 0.08)';
     });
-}
 
-// Add hover effect to messages
-message.addEventListener('mouseenter', () => {
-    message.style.transform = 'scale(1.02)';
-    message.style.background = 'rgba(255, 255, 255, 0.08)';
-});
-
-message.addEventListener('mouseleave', () => {
-    message.style.transform = 'scale(1)';
-    message.style.background = 'rgba(255, 255, 255, 0.05)';
-});
+    message.addEventListener('mouseleave', () => {
+        message.style.transform = 'scale(1)';
+        message.style.background = 'rgba(255, 255, 255, 0.05)';
+    });
 };
 
 // Add CSS animations
