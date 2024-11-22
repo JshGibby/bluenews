@@ -170,7 +170,6 @@ ws.onmessage = async (event) => {
             !json.commit.record ||
             json.commit.operation !== 'create') {
             return;
-            }
 
         // Find next available unpause column
         let attempts = 0;
