@@ -63,7 +63,7 @@ document.body.appendChild(container);
 
 async function fetchProfileFeed(url) {
     try {
-        const response = await fetch(`https://cors-anywhere.herokuapp.com/${url}`);
+        const response = await fetch(`${url}`);
         const text = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
@@ -77,7 +77,7 @@ async function fetchProfileFeed(url) {
 
 async function fetchEmbedCode(postUrl) {
     try {
-        const embedUrl = `https://cors-anywhere.herokuapp.com/https://embed.bsky.app/?url=${postUrl}`;
+        const embedUrl = `https://embed.bsky.app/?url=${postUrl}`;
         const response = await fetch(embedUrl);
         return response.text();
     } catch (error) {
