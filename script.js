@@ -233,19 +233,22 @@ ws.onmessage = async (event) => {
             json.commit.operation !== 'create') {
             return;
         }
+
         // Find next available unpause column
         let attempts = 0;
         while (columnPaused[currentColumn] && attempts < COLUMN_COUNT) {
             currentColumn = (currentColumn + 1) % COLUMN_COUNT;
             attempts++;
         }
-        
+
         // If all columns are paused, skip this message
         if (attempts === COLUMN_COUNT) return;
+
         // Fetch embed code
         const embedUrl = `https://cors-anywhere.herokuapp.com/https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
         const response = await fetch(embedUrl);
         const embedCode = await response.text();
+
         // Create new message as a div
         const message = document.createElement('div');
         message.style.cssText = `
@@ -265,13 +268,13 @@ ws.onmessage = async (event) => {
             cursor: pointer;
             display: block;
         `;
-        
+
         message.innerHTML = embedCode;
-        
+
         // Move the message insertion and hover effects here
         columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
         currentColumn = (currentColumn + 1) % COLUMN_COUNT;
-        
+
         // Only remove old messages if column isn't paused
         if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
             const oldMessages = Array.from(columns[currentColumn].children).slice(15);
@@ -280,57 +283,100 @@ ws.onmessage = async (event) => {
                 setTimeout(() => msg.remove(), 300);
             });
         }
+
         // Add hover effect to messages
         message.addEventListener('mouseenter', () => {
             message.style.transform = 'scale(1.02)';
             message.style.background = 'rgba(255, 255, 255, 0.08)';
-            return[_{{{CITATION{{{_1{](https://github.com/watchping/vue-course/tree/6a60dc019287a13859793f1ec7fef84dc41aa2b9/temp.md)
-                                               border-left: 4px solid ${getRandomColor()};
-        border-radius: 8px;
-        opacity: 0;
-        transform: translateY(-20px);
-        animation: fadeIn 0.3s ease forwards;
-        font-size: 14px;
-        word-break: break-word;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        transition: all 0.2s ease;
-        text-decoration: none;
-        color: inherit;
-        cursor: pointer;
-        display: block;
-    `;
-    
-    message.innerHTML = embedCode;
-    
-    // Move the message insertion and hover effects here
-    columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
-    currentColumn = (currentColumn + 1) % COLUMN_COUNT;
-    
-    // Only remove old messages if column isn't paused
-    if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
-        const oldMessages = Array.from(columns[currentColumn].children).slice(15);
-        oldMessages.forEach(msg => {
-            msg.style.animation = 'fadeOut 0.3s ease forwards';
-            setTimeout(() => msg.remove(), 300);
         });
-    }
+
         message.addEventListener('mouseleave', () => {
             message.style.transform = 'scale(1)';
             message.style.background = 'rgba(255, 255, 255, 0.05)';
         });
-    // Add hover effect to messages
-    message.addEventListener('mouseenter', () => {
-        message.style.transform = 'scale(1.02)';
-        message.style.background = 'rgba(255, 255, 255, 0.08)';
-    });
-    message.addEventListener('mouseleave', () => {
-        message.style.transform = 'scale(1)';
-        message.style.background = 'rgba(255, 255, 255, 0.05)';
-    });
     } catch (error) {
         console.error("Error handling WebSocket message:", error);
     }
 };
+
+ws.onmessage = async (event) => {
+    try {
+        const json = JSON.parse(event.data);
+
+        if (json.kind !== 'commit' || 
+            json.commit.collection !== 'app.bsky.feed.post' ||
+            !json.commit.record ||
+            json.commit.operation !== 'create') {
+            return;
+        }
+
+        // Find next available unpause column
+        let attempts = 0;
+        while (columnPaused[currentColumn] && attempts < COLUMN_COUNT) {
+            currentColumn = (currentColumn + 1) % COLUMN_COUNT;
+            attempts++;
+        }
+
+        // If all columns are paused, skip this message
+        if (attempts === COLUMN_COUNT) return;
+
+        // Fetch embed code
+        const embedUrl = `https://cors-anywhere.herokuapp.com/https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
+        const response = await fetch(embedUrl);
+        const embedCode = await response.text();
+
+        // Create new message as a div
+        const message = document.createElement('div');
+        message.style.cssText = `
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid ${getRandomColor()};
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeIn 0.3s ease forwards;
+            font-size: 14px;
+            word-break: break-word;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            display: block;
+        `;
+
+        message.innerHTML = embedCode;
+
+        // Move the message insertion and hover effects here
+        columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
+        currentColumn = (currentColumn + 1) % COLUMN_COUNT;
+
+        // Only remove old messages if column isn't paused
+        if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
+            const oldMessages = Array.from(columns[currentColumn].children).slice(15);
+            oldMessages.forEach(msg => {
+                msg.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => msg.remove(), 300);
+            });
+        }
+
+        // Add hover effect to messages
+        message.addEventListener('mouseenter', () => {
+            message.style.transform = 'scale(1.02)';
+            message.style.background = 'rgba(255, 255, 255, 0.08)';
+        });
+
+        message.addEventListener('mouseleave', () => {
+            message.style.transform = 'scale(1)';
+            message.style.background = 'rgba(255, 255, 255, 0.05)';
+        });
+    } catch (error) {
+        console.error("Error handling WebSocket message:", error);
+    }
+};
+
+// Rest of the code remains the same
+
 // Add CSS animations
 const style = document.createElement('style');
 style.textContent = `
