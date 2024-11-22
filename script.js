@@ -181,12 +181,12 @@ ws.onmessage = async (event) => {
             currentColumn = (currentColumn + 1) % COLUMN_COUNT;
             attempts++;
         }
-        
+
 function checkAttempts(attempts) {
-  // If all columns are paused, skip this message
-  if (attempts === COLUMN_COUNT) {
-    return;
-  }
+// If all columns are paused, skip this message
+if (attempts === COLUMN_COUNT) {
+  // Do nothing
+} else {
   // Rest of your code...
 }
 
