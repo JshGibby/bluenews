@@ -37,8 +37,23 @@
             background: rgba(255,255,255,0.3);
         }
     </style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluesky WebSocket</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Container for messages -->
+    <div id="container"></div>
+
+    <!-- Controls Container -->
+    <div id="controlsContainer">
+        <a id="followBox" href="https://bsky.app/profile/lantto.bsky.social" target="_blank">Follow me @ Bsky</a>
+        <button id="pauseButton">Pause</button>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
+
