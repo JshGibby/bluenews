@@ -202,7 +202,10 @@ async function displayMosaicFeed(profileUrls) {
             const embedCode = await fetchEmbedCode(postLink);
             if (embedCode) {
                 const embedContainer = document.createElement('div');
-                embedContainer.innerHTML = embedCode;
+                embedContainer.innerHTML = `
+                    <blockquote class="bluesky-embed" data-bluesky-uri="${postLink}" data-bluesky-cid="data-cid"></blockquote>
+                    <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+                `;
                 columns[currentColumn].insertBefore(embedContainer, columns[currentColumn].firstChild);
                 currentColumn = (currentColumn + 1) % COLUMN_COUNT;
             }
@@ -244,11 +247,8 @@ ws.onmessage = async (event) => {
 
     // Create new message as a div
     const message = document.createElement('div');
-    message.style.cssText = `
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border-left: 4px solid ${getRandomColor()};
-        border-radius: 8px;
+    message.style.cssText
+
     opacity: 0;
     transform: translateY(-20px);
     animation: fadeIn 0.3s ease forwards;
@@ -262,7 +262,10 @@ ws.onmessage = async (event) => {
     display: block;
 `;
 
-message.innerHTML = embedCode;
+message.innerHTML = `
+    <blockquote class="bluesky-embed" data-bluesky-uri="${embedUrl}" data-bluesky-cid="data-cid"></blockquote>
+    <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+`;
 
 // Move the message insertion and hover effects here
 columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
