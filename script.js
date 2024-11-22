@@ -113,8 +113,6 @@ function getRandomColor() {
 function formatMessage(text) {
     // Convert URLs to clickable links
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.replace(url)
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, url => `<a href="${url}" target="_blank" style="color: #4ECDC4;">${url}</a>`);
 }
 
