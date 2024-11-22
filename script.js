@@ -165,12 +165,16 @@ ws.onmessage = async (event) => {
     try {
         const json = JSON.parse(event.data);
 
-        if (json.kind !== 'commit' || 
-            json.commit.collection !== 'app.bsky.feed.post' ||
-            !json.commit.record ||
-            json.commit.operation !== 'create') {
-            return;
-
+        if (json.kind === 'commit' && 
+            json.commit.collection === 'app.bsky.feed.post' &&
+            json.commit.record &&
+            json.commit.operation === 'create') {
+            // Rest of your code here...
+        }
+    } catch (error) {
+        console.error("Error handling WebSocket message:", error);
+    }
+};
         // Find next available unpause column
         let attempts = 0;
         while (columnPaused[currentColumn] && attempts < COLUMN_COUNT) {
