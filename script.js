@@ -278,10 +278,12 @@ ws.onmessage = async (event) => {
     // If all columns are paused, skip this message
     if (attempts === COLUMN_COUNT) return;
 
-    // Fetch embed code
+    // Fetch embed code with a delay
     const embedUrl = `https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
+    await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
     const response = await fetch(embedUrl, { mode: 'no-cors' });
     const embedCode = await response.text();
+
 
     // Create new message as a div
     const message = document.createElement('div');
