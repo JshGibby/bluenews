@@ -5,11 +5,88 @@ ws.onopen = () => {
     console.log("Connected to Bluesky WebSocket");
 };
 
-// Initialize variables
-let COLUMN_COUNT = getColumnCount();
-let columns = [];
-let columnPaused = [];
-let currentColumn = 0;
+// Create container for messages
+const container = document.createElement('div');
+container.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #fff;
+    overflow: hidden;
+    font-family: monospace;
+    display: flex;
+    gap: 10px;
+    padding: clamp(10px, 2vw, 20px);
+    padding-top: 20px;
+    box-sizing: border-box;
+`;
+
+// After creating the container, add these new elements
+const controlsContainer = document.createElement('div');
+controlsContainer.style.cssText = `
+    position: fixed;
+    top: clamp(10px, 2vw, 20px);
+    left: clamp(10px, 2vw, 20px);
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+`;
+
+const followBox = document.createElement('a');
+followBox.href = 'https://bsky.app/profile/lantto.bsky.social';
+followBox.target = '_blank';
+followBox.style.cssText = `
+    background: #2a2a2a;
+    padding: 10px 15px;
+    border-radius: 8px;
+    color: #fff;
+    text-decoration: none;
+    font-family: monospace;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+`;
+followBox.textContent = 'Follow me @ Bsky';
+followBox.addEventListener('mouseenter', () => {
+    followBox.style.background = '#363636';
+});
+followBox.addEventListener('mouseleave', () => {
+    followBox.style.background = '#2a2a2a';
+});
+
+const pauseButton = document.createElement('button');
+pauseButton.style.cssText = `
+    background: #2a2a2a;
+    padding: 10px 15px;
+    border-radius: 8px;
+    color: #fff;
+    border: none;
+    font-family: monospace;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+`;
+pauseButton.textContent = 'Pause';
+let isPaused = false;
+pauseButton.addEventListener('click', () => {
+    isPaused = !isPaused;
+    pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
+    pauseButton.style.background = isPaused ? '#4ECDC4' : '#2a2a2a';
+    columnPaused.fill(isPaused);
+});
+pauseButton.addEventListener('mouseenter', () => {
+    pauseButton.style.background = isPaused ? '#5ddad1' : '#363636';
+});
+pauseButton.addEventListener('mouseleave', () => {
+    pauseButton.style.background = isPaused ? '#4ECDC4' : '#2a2a2a';
+});
+
+controlsContainer.appendChild(followBox);
+controlsContainer.appendChild(pauseButton);
+document.body.appendChild(controlsContainer);
 
 // Replace the fixed COLUMN_COUNT with a function
 function getColumnCount() {
@@ -21,6 +98,12 @@ function getColumnCount() {
     return 6;                         // Large Desktop
 }
 
+// Initialize variables
+let COLUMN_COUNT = getColumnCount();
+let columns = [];
+let columnPaused = [];
+let currentColumn = 0;
+
 // Add these new utility functions
 function getRandomColor() {
     const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
@@ -29,6 +112,8 @@ function getRandomColor() {
 
 function formatMessage(text) {
     // Convert URLs to clickable links
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(url
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, url => `<a href="${url}" target="_blank" style="color: #4ECDC4;">${url}</a>`);
 }
@@ -42,6 +127,32 @@ function createColumns() {
     
     for (let i = 0; i < COLUMN_COUNT; i++) {
         const column = document.createElement('div');
+        column.style.cssText = `
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: calc(100%);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-radius: clamp(5px, 1vw, 10px);
+            padding: clamp(5px, 1vw, 10px);
+        `;
+        
+        column.addEventListener('mouseenter', () => {
+            if (!isPaused) {  // Only pause column if global pause is not active
+                columnPaused[i] = true;
+                column.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            }
+        });
+        
+        column.addEventListener('mouseleave', () => {
+            if (!isPaused) {  // Only unpause if global pause is not active
+                columnPaused[i] = false;
+                column.style.backgroundColor = 'transparent';
+            }
+        });
+        
         columns.push(column);
         container.appendChild(column);
     }
@@ -63,7 +174,7 @@ document.body.appendChild(container);
 
 async function fetchProfileFeed(url) {
     try {
-        const response = await fetch(`{url}`);
+        const response = await fetch(url);
         const text = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
@@ -129,12 +240,30 @@ ws.onmessage = async (event) => {
     if (attempts === COLUMN_COUNT) return;
 
     // Fetch embed code
-    const embedUrl = `https://cors-anywhere.herokuapp.com/https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
+    const embedUrl = `https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
     const response = await fetch(embedUrl);
     const embedCode = await response.text();
 
     // Create new message as a div
     const message = document.createElement('div');
+    message.style.cssText = `
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 4px solid ${getRandomColor()};
+        border-radius: 8px;
+        opacity: 0;
+        transform: translateY(-20px);
+        animation: fadeIn 0.3s ease forwards;
+        font-size: 14px;
+        word-break: break-word;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+        display: block;
+    `;
+    
     message.innerHTML = embedCode;
     
     // Move the message insertion and hover effects here
@@ -145,10 +274,49 @@ ws.onmessage = async (event) => {
     if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
         const oldMessages = Array.from(columns[currentColumn].children).slice(15);
         oldMessages.forEach(msg => {
+            msg.style.animation = 'fadeOut 0.3s ease forwards';
             setTimeout(() => msg.remove(), 300);
         });
     }
+
+    // Add hover effect to messages
+    message.addEventListener('mouseenter', () => {
+        message.style.transform = 'scale(1.02)';
+        message.style.background = 'rgba(255, 255, 255, 0.08)';
+    });
+
+    message.addEventListener('mouseleave', () => {
+        message.style.transform = 'scale(1)';
+        message.style.background = 'rgba(255, 255, 255, 0.05)';
+    });
 };
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { 
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    @keyframes fadeOut {
+        from { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        to { 
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+    }
+`;
+document.head.appendChild(style);
 
 ws.onerror = (error) => {
     console.error("WebSocket error:", error);
