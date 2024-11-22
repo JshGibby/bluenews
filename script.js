@@ -202,6 +202,8 @@ async function displayMosaicFeed(profileUrls) {
             const embedCode = await fetchEmbedCode(postLink);
             if (embedCode) {
                 const embedContainer = document.createElement('div');
+                const userId = postLink.split('/')[4]; // Extract user ID from the post link
+                const postId = postLink.split('/').pop(); // Extract post ID from the post link
                 embedContainer.style.cssText = `
                     padding: 15px;
                     background: rgba(255, 255, 255, 0.05);
@@ -220,7 +222,7 @@ async function displayMosaicFeed(profileUrls) {
                     display: block;
                 `;
                 embedContainer.innerHTML = `
-                    <blockquote class="bluesky-embed" data-bluesky-uri="${postLink}" data-bluesky-cid="data-cid"></blockquote>
+                    <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:${userId}/app.bsky.feed.post/${postId}" data-bluesky-cid="data-cid"></blockquote>
                     <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
                 `;
                 columns[currentColumn].insertBefore(embedContainer, columns[currentColumn].firstChild);
@@ -264,6 +266,8 @@ ws.onmessage = async (event) => {
 
     // Create new message as a div
     const message = document.createElement('div');
+    const userId = json.did.split(':').pop(); // Extract user ID from the DID
+    const postId = json.commit.rkey; // Extract post ID from the commit key
     message.style.cssText = `
         padding: 15px;
         background: rgba(255, 255, 255, 0.05);
@@ -282,7 +286,7 @@ ws.onmessage = async (event) => {
         display: block;
     `;
     message.innerHTML = `
-        <blockquote class="bluesky-embed" data-bluesky-uri="${embedUrl}" data-bluesky-cid="data-cid"></blockquote>
+        <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:${userId}/app.bsky.feed.post/${postId}" data-bluesky-cid="data-cid"></blockquote>
         <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
     `;
 
