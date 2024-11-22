@@ -172,7 +172,7 @@ document.body.appendChild(container);
 
 async function fetchProfileFeed(url) {
     try {
-        const response = await fetch(url, { mode: 'no-cors' });
+        const response = await fetch(url);
         const text = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
@@ -187,7 +187,7 @@ async function fetchProfileFeed(url) {
 async function fetchEmbedCode(postUrl) {
     try {
         const embedUrl = `https://embed.bsky.app/?url=${postUrl}`;
-        const response = await fetch(embedUrl, { mode: 'no-cors' });
+        const response = await fetch(embedUrl);
         return response.text();
     } catch (error) {
         console.error("Error fetching embed code:", error);
@@ -209,8 +209,8 @@ async function displayMosaicFeed(profileUrls) {
                     background: rgba(255, 255, 255, 0.05);
                     border-left: 4px solid ${getRandomColor()};
                     border-radius: 8px;
-                    opacity: 0;
-                    transform: translateY(-20px);
+                    opacity: 1;
+                    transform: translateY(0);
                     animation: fadeIn 0.3s ease forwards;
                     font-size: 14px;
                     word-break: break-word;
@@ -243,9 +243,9 @@ ws.onmessage = async (event) => {
     const json = JSON.parse(event.data);
 
     if (json.kind !== 'commit' || 
-        json.commit.collection !== 'app.bsky.feed.post' ||
-        !json.commit.record ||
-        json.commit.operation !== 'create') {
+    json.commit.collection !== 'app.bsky.feed.post' ||
+    !json.commit.record ||
+    json.commit.operation !== 'create') {
         return;
     }
 
@@ -261,7 +261,7 @@ ws.onmessage = async (event) => {
 
     // Fetch embed code
     const embedUrl = `https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
-    const response = await fetch(embedUrl, { mode: 'no-cors' });
+    const response = await fetch(embedUrl);
     const embedCode = await response.text();
 
     // Create new message as a div
@@ -273,8 +273,8 @@ ws.onmessage = async (event) => {
         background: rgba(255, 255, 255, 0.05);
         border-left: 4px solid ${getRandomColor()};
         border-radius: 8px;
-        opacity: 0;
-        transform: translateY(-20px);
+        opacity: 1;
+        transform: translateY(0);
         animation: fadeIn 0.3s ease forwards;
         font-size: 14px;
         word-break: break-word;
