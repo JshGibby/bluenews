@@ -122,7 +122,7 @@ function createColumns() {
     columns = [];
     COLUMN_COUNT = getColumnCount();
     columnPaused = new Array(COLUMN_COUNT).fill(false);
-    
+
     for (let i = 0; i < COLUMN_COUNT; i++) {
         const column = document.createElement('div');
         column.style.cssText = `
@@ -136,21 +136,21 @@ function createColumns() {
             border-radius: clamp(5px, 1vw, 10px);
             padding: clamp(5px, 1vw, 10px);
         `;
-        
+
         column.addEventListener('mouseenter', () => {
             if (!isPaused) {  // Only pause column if global pause is not active
                 columnPaused[i] = true;
                 column.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
             }
         });
-        
+
         column.addEventListener('mouseleave', () => {
             if (!isPaused) {  // Only unpause if global pause is not active
                 columnPaused[i] = false;
                 column.style.backgroundColor = 'transparent';
             }
         });
-        
+
         columns.push(column);
         container.appendChild(column);
     }
@@ -172,7 +172,7 @@ document.body.appendChild(container);
 
 async function fetchProfileFeed(url) {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { mode: 'no-cors' });
         const text = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
@@ -187,7 +187,7 @@ async function fetchProfileFeed(url) {
 async function fetchEmbedCode(postUrl) {
     try {
         const embedUrl = `https://embed.bsky.app/?url=${postUrl}`;
-        const response = await fetch(embedUrl);
+        const response = await fetch(embedUrl, { mode: 'no-cors' });
         return response.text();
     } catch (error) {
         console.error("Error fetching embed code:", error);
@@ -209,8 +209,8 @@ async function displayMosaicFeed(profileUrls) {
                     background: rgba(255, 255, 255, 0.05);
                     border-left: 4px solid ${getRandomColor()};
                     border-radius: 8px;
-                    opacity: 1;
-                    transform: translateY(0);
+                    opacity: 0;
+                    transform: translateY(-20px);
                     animation: fadeIn 0.3s ease forwards;
                     font-size: 14px;
                     word-break: break-word;
@@ -222,6 +222,7 @@ async function displayMosaicFeed(profileUrls) {
                     display: block;
                 `;
                 embedContainer.innerHTML = `
+                    <blockquote class="bluesky-embed" data-bluesky-uri="${postLink}" data-bluesky-cid="data-cid"></blockquote>
                     <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:${userId}/app.bsky.feed.post/${postId}" data-bluesky-cid="data-cid"></blockquote>
                     <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
                 `;
@@ -243,9 +244,9 @@ ws.onmessage = async (event) => {
     const json = JSON.parse(event.data);
 
     if (json.kind !== 'commit' || 
-    json.commit.collection !== 'app.bsky.feed.post' ||
-    !json.commit.record ||
-    json.commit.operation !== 'create') {
+        json.commit.collection !== 'app.bsky.feed.post' ||
+        !json.commit.record ||
+        json.commit.operation !== 'create') {
         return;
     }
 
@@ -255,13 +256,13 @@ ws.onmessage = async (event) => {
         currentColumn = (currentColumn + 1) % COLUMN_COUNT;
         attempts++;
     }
-    
+
     // If all columns are paused, skip this message
     if (attempts === COLUMN_COUNT) return;
 
     // Fetch embed code
     const embedUrl = `https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
-    const response = await fetch(embedUrl);
+    const response = await fetch(embedUrl, { mode: 'no-cors' });
     const embedCode = await response.text();
 
     // Create new message as a div
@@ -273,8 +274,8 @@ ws.onmessage = async (event) => {
         background: rgba(255, 255, 255, 0.05);
         border-left: 4px solid ${getRandomColor()};
         border-radius: 8px;
-        opacity: 1;
-        transform: translateY(0);
+        opacity: 0;
+        transform: translateY(-20px);
         animation: fadeIn 0.3s ease forwards;
         font-size: 14px;
         word-break: break-word;
@@ -286,6 +287,7 @@ ws.onmessage = async (event) => {
         display: block;
     `;
     message.innerHTML = `
+        <blockquote class="bluesky-embed" data-bluesky-uri="${embedUrl}" data-bluesky-cid="data-cid"></blockquote>
         <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:${userId}/app.bsky.feed.post/${postId}" data-bluesky-cid="data-cid"></blockquote>
         <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
     `;
