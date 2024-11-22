@@ -1,4 +1,4 @@
-const url = 'https://corsproxy.io/?' + encodeURIComponent('wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post');
+const url = "wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post";
 
 const ws = new WebSocket(url);
 ws.onopen = () => {
@@ -112,7 +112,7 @@ document.body.appendChild(container);
 
 async function fetchProfileFeed(url) {
     try {
-        const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+        const response = await fetch(url);
         const text = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
@@ -126,7 +126,7 @@ async function fetchProfileFeed(url) {
 
 async function fetchEmbedCode(postUrl) {
     try {
-        const embedUrl = `https://corsproxy.io/?${encodeURIComponent(`https://embed.bsky.app/?url=${postUrl}`)}`;
+        const embedUrl = `https://embed.bsky.app/?url=${postUrl}`;
         const response = await fetch(embedUrl);
         return response.text();
     } catch (error) {
@@ -183,7 +183,7 @@ ws.onmessage = async (event) => {
         if (attempts === COLUMN_COUNT) return;
 
         // Fetch embed code
-        const embedUrl = `https://corsproxy.io/?${encodeURIComponent(`https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`)}`;
+        const embedUrl = `https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
         const response = await fetch(embedUrl);
         const embedCode = await response.text();
 
@@ -254,14 +254,16 @@ style.textContent = `
     @keyframes fadeOut {
         from { 
             opacity: 1;
-
-        to { 
-            opacity: 1;
             transform: translateY(0) scale(1);
         }
+        to { 
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
     }
-    
-    @keyframes fadeOut {
+`;
+document.head.appendChild(style
+                              @keyframes fadeOut {
         from { 
             opacity: 1;
             transform: translateY(0) scale(1);
