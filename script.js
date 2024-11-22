@@ -63,7 +63,7 @@ document.body.appendChild(container);
 
 async function fetchProfileFeed(url) {
     try {
-        const response = await fetch(`${url}`);
+        const response = await fetch(`{url}`);
         const text = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
