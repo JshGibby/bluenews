@@ -182,8 +182,16 @@ ws.onmessage = async (event) => {
             attempts++;
         }
         
-        // If all columns are paused, skip this message
-        if (attempts === COLUMN_COUNT) return;
+function checkAttempts(attempts) {
+  // If all columns are paused, skip this message
+  if (attempts === COLUMN_COUNT) {
+    return;
+  }
+  // Rest of your code...
+}
+
+// Call the function
+checkAttempts(attempts);
 
         // Fetch embed code
         const embedUrl = `https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
