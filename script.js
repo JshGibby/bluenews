@@ -225,19 +225,20 @@ ws.onmessage = async (event) => {
             });
         }
 
-        // Add hover effect to messages
-        message.addEventListener('mouseenter', () => {
-            message.style.transform = 'scale(1.02)';
-            message.style.background = 'rgba(255, 255, 255, 0.08)';
-        });
+try {
+    // Add hover effect to messages
+    message.addEventListener('mouseenter', () => {
+        message.style.transform = 'scale(1.02)';
+        message.style.background = 'rgba(255, 255, 255, 0.08)';
+    });
 
-        message.addEventListener('mouseleave', () => {
-            message.style.transform = 'scale(1)';
-            message.style.background = 'rgba(255, 255, 255, 0.05)';
-        });
-    } catch (error) {
-        console.error("Error handling WebSocket message:", error);
-    }
+    message.addEventListener('mouseleave', () => {
+        message.style.transform = 'scale(1)';
+        message.style.background = 'rgba(255, 255, 255, 0.05)';
+    });
+} catch (error) {
+    console.error("Error handling WebSocket message:", error);
+}
 };
 
 // Add CSS animations
