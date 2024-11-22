@@ -254,39 +254,39 @@ ws.onmessage = async (event) => {
         animation: fadeIn 0.3s ease forwards;
         font-size: 14px;
         word-break: break-word;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        transition: all 0.2s ease;
-        text-decoration: none;
-        color: inherit;
-        cursor: pointer;
-        display: block;
-    `;
-    
-    message.innerHTML = embedCode;
-    
-    // Move the message insertion and hover effects here
-    columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
-    currentColumn = (currentColumn + 1) % COLUMN_COUNT;
-    
-    // Only remove old messages if column isn't paused
-    if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
-        const oldMessages = Array.from(columns[currentColumn].children).slice(15);
-        oldMessages.forEach(msg => {
-            msg.style.animation = 'fadeOut 0.3s ease forwards';
-            setTimeout(() => msg.remove(), 300);
-        });
-    }
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    display: block;
+`;
 
-    // Add hover effect to messages
-    message.addEventListener('mouseenter', () => {
-        message.style.transform = 'scale(1.02)';
-        message.style.background = 'rgba(255, 255, 255, 0.08)';
-    });
+message.innerHTML = embedCode;
 
-    message.addEventListener('mouseleave', () => {
-        message.style.transform = 'scale(1)';
-        message.style.background = 'rgba(255, 255, 255, 0.05)';
+// Move the message insertion and hover effects here
+columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
+currentColumn = (currentColumn + 1) % COLUMN_COUNT;
+
+// Only remove old messages if column isn't paused
+if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
+    const oldMessages = Array.from(columns[currentColumn].children).slice(15);
+    oldMessages.forEach(msg => {
+        msg.style.animation = 'fadeOut 0.3s ease forwards';
+        setTimeout(() => msg.remove(), 300);
     });
+}
+
+// Add hover effect to messages
+message.addEventListener('mouseenter', () => {
+    message.style.transform = 'scale(1.02)';
+    message.style.background = 'rgba(255, 255, 255, 0.08)';
+});
+
+message.addEventListener('mouseleave', () => {
+    message.style.transform = 'scale(1)';
+    message.style.background = 'rgba(255, 255, 255, 0.05)';
+});
 };
 
 // Add CSS animations
@@ -323,3 +323,5 @@ ws.onerror = (error) => {
 ws.onclose = () => {
     console.log("WebSocket connection closed");
 };
+
+        
