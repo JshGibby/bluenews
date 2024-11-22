@@ -182,56 +182,55 @@ ws.onmessage = async (event) => {
             attempts++;
         }
 
-function checkAttempts(attempts) {
-// If all columns are paused, skip this message
-if (attempts === COLUMN_COUNT) {
-  // Do nothing
-} else {
-  // Rest of your code...
+async function checkAttempts(attempts) {
+  // If all columns are paused, skip this message
+  if (attempts === COLUMN_COUNT) {
+    return;
+  }
+
+  // Fetch embed code
+  const embedUrl = `https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
+  const response = await fetch(embedUrl);
+  const embedCode = await response.text();
+
+  // Create new message as a div
+  const message = document.createElement('div');
+  message.style.cssText = `
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid ${getRandomColor()};
+      border-radius: 8px;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeIn 0.3s ease forwards;
+      font-size: 14px;
+      word-break: break-word;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      display: block;
+  `;
+  
+  message.innerHTML = embedCode;
+  
+  // Move the message insertion and hover effects here
+  columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
+  currentColumn = (currentColumn + 1) % COLUMN_COUNT;
+  
+  // Only remove old messages if column isn't paused
+  if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
+      const oldMessages = Array.from(columns[currentColumn].children).slice(15);
+      oldMessages.forEach(msg => {
+          msg.style.animation = 'fadeOut 0.3s ease forwards';
+          setTimeout(() => msg.remove(), 300);
+      });
+  }
 }
 
 // Call the function
 checkAttempts(attempts);
-
-        // Fetch embed code
-        const embedUrl = `https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
-        const response = await fetch(embedUrl);
-        const embedCode = await response.text();
-
-        // Create new message as a div
-        const message = document.createElement('div');
-        message.style.cssText = `
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 4px solid ${getRandomColor()};
-            border-radius: 8px;
-            opacity: 0;
-            transform: translateY(-20px);
-            animation: fadeIn 0.3s ease forwards;
-            font-size: 14px;
-            word-break: break-word;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
-            text-decoration: none;
-            color: inherit;
-            cursor: pointer;
-            display: block;
-        `;
-        
-        message.innerHTML = embedCode;
-        
-        // Move the message insertion and hover effects here
-        columns[currentColumn].insertBefore(message, columns[currentColumn].firstChild);
-        currentColumn = (currentColumn + 1) % COLUMN_COUNT;
-        
-        // Only remove old messages if column isn't paused
-        if (!columnPaused[currentColumn] && columns[currentColumn].children.length > 15) {
-            const oldMessages = Array.from(columns[currentColumn].children).slice(15);
-            oldMessages.forEach(msg => {
-                msg.style.animation = 'fadeOut 0.3s ease forwards';
-                setTimeout(() => msg.remove(), 300);
-            });
-        }
 
 try {
     // Add hover effect to messages
