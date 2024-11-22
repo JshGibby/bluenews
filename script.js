@@ -172,7 +172,7 @@ document.body.appendChild(container);
 
 async function fetchProfileFeed(url) {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { mode: 'no-cors' });
         const text = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
@@ -187,7 +187,7 @@ async function fetchProfileFeed(url) {
 async function fetchEmbedCode(postUrl) {
     try {
         const embedUrl = `https://embed.bsky.app/?url=${postUrl}`;
-        const response = await fetch(embedUrl);
+        const response = await fetch(embedUrl, { mode: 'no-cors' });
         return response.text();
     } catch (error) {
         console.error("Error fetching embed code:", error);
@@ -239,7 +239,7 @@ ws.onmessage = async (event) => {
 
     // Fetch embed code
     const embedUrl = `https://embed.bsky.app/?url=https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
-    const response = await fetch(embedUrl);
+    const response = await fetch(embedUrl, { mode: 'no-cors' });
     const embedCode = await response.text();
 
     // Create new message as a div
@@ -249,11 +249,11 @@ ws.onmessage = async (event) => {
         background: rgba(255, 255, 255, 0.05);
         border-left: 4px solid ${getRandomColor()};
         border-radius: 8px;
-        opacity: 0;
-        transform: translateY(-20px);
-        animation: fadeIn 0.3s ease forwards;
-        font-size: 14px;
-        word-break: break-word;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: fadeIn 0.3s ease forwards;
+    font-size: 14px;
+    word-break: break-word;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     transition: all 0.2s ease;
     text-decoration: none;
@@ -323,5 +323,3 @@ ws.onerror = (error) => {
 ws.onclose = () => {
     console.log("WebSocket connection closed");
 };
-
-        
