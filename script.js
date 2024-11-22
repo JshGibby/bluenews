@@ -274,7 +274,7 @@ ws.onmessage = async (event) => {
         background: rgba(255, 255, 255, 0.05);
         border-left: 4px solid ${getRandomColor()};
         border-radius: 8px;
-        opacity: 0;
+        opacity: 1;
         transform: translateY(-20px);
         animation: fadeIn 0.3s ease forwards;
         font-size: 14px;
