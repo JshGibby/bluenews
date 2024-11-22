@@ -170,6 +170,24 @@ window.addEventListener('resize', () => {
 
 document.body.appendChild(container);
 
+async function fetchWithExponentialBackoff(url, retries = 5, delay = 1000) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.text();
+    } catch (error) {
+        if (retries > 0) {
+            console.log(`Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return fetchWithExponentialBackoff(url, retries - 1, delay * 2);
+        } else {
+            throw error;
+        }
+    }
+}
+
 async function fetchProfileFeed(url) {
     try {
         const response = await fetch(url, { mode: 'no-cors' });
